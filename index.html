@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f7f9;--panel:#fff;--border:#e5e7eb;--text:#111827;--sub:#6b7280;
+  --brand:#4f46e5;--brand2:#6366f1;--green:#16a34a;--red:#dc2626;--amber:#d97706;
+  --radius:12px;--shadow:0 1px 2px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.04);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1115;--panel:#171a21;--border:#262a33;--text:#f3f4f6;--sub:#9ca3af;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f1115;--panel:#171a21;--border:#262a33;--text:#f3f4f6;--sub:#9ca3af;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);height:100%}
+button,input,select,textarea{font-family:inherit;color:inherit}
+.app{display:flex;min-height:100vh}
+.sidebar{width:220px;flex:none;background:var(--panel);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:16px 12px;position:sticky;top:0;height:100vh}
+.brand{font-weight:700;font-size:15px;padding:8px 10px 18px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--sub);
+  text-decoration:none;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:2px}
+.nav a:hover{background:var(--bg)}
+.nav a.active{background:var(--brand);color:#fff}
+.sidebar-bottom{margin-top:auto;border-top:1px solid var(--border);padding-top:12px;font-size:12px;color:var(--sub)}
+.theme-btn{width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;margin-top:8px;font-size:13px}
+.main{flex:1;min-width:0}
+header{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--border);
+  padding:14px 24px;display:flex;justify-content:space-between;align-items:center;z-index:5;
+  padding-top:calc(14px + env(safe-area-inset-top,0px))}
+header h1{font-size:18px;margin:0}
+.search{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);width:220px;font-size:13px}
+.content{padding:24px;max-width:1200px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:20px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.card .label{font-size:12px;color:var(--sub);margin-bottom:6px}
+.card .num{font-size:22px;font-weight:700}
+.card .delta{font-size:12px;margin-top:4px}
+.up{color:var(--green)}.down{color:var(--red)}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:18px;box-shadow:var(--shadow);overflow-x:auto}
+.panel h3{margin:0 0 12px;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+th{text-align:left;color:var(--sub);font-weight:500;padding:8px;border-bottom:1px solid var(--border);font-size:12px}
+td{padding:9px 8px;border-bottom:1px solid var(--border)}
+tr:hover td{background:var(--bg)}
+.badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600}
+.b-novo{background:#e0e7ff;color:#4338ca}.b-contatado{background:#dbeafe;color:#1d4ed8}
+.b-negociacao{background:#fef3c7;color:#b45309}.b-proposta_enviada{background:#fde68a;color:#92400e}
+.b-fechado{background:#dcfce7;color:#15803d}.b-perdido{background:#fee2e2;color:#b91c1c}
+.b-recebido{background:#dcfce7;color:#15803d}.b-pendente{background:#fef3c7;color:#b45309}
+.b-atrasado{background:#fee2e2;color:#b91c1c}.b-cancelado{background:#e5e7eb;color:#4b5563}
+.b-planejamento{background:#e0e7ff;color:#4338ca}.b-em_andamento{background:#dbeafe;color:#1d4ed8}
+.b-aguardando_cliente{background:#fef3c7;color:#b45309}.b-concluido{background:#dcfce7;color:#15803d}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+.btn{padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--panel);cursor:pointer;font-size:13px;font-weight:600}
+.btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-danger{color:var(--red)}
+.icon-btn{border:none;background:transparent;cursor:pointer;color:var(--sub);font-size:14px;padding:4px 6px}
+.icon-btn:hover{color:var(--text)}
+.kanban{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}
+.kcol{background:var(--bg);border-radius:var(--radius);min-width:220px;flex:1;padding:10px}
+.kcol h4{font-size:12px;color:var(--sub);margin:2px 6px 10px;text-transform:uppercase;letter-spacing:.03em}
+.kcard{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;cursor:grab;font-size:13px}
+.kcard b{display:block;font-size:13px}
+.kcard .kv{color:var(--brand);font-weight:600;font-size:12px;margin-top:4px}
+.kcard small{color:var(--sub)}
+.empty{text-align:center;color:var(--sub);padding:30px;font-size:13px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:var(--panel);border-radius:var(--radius);padding:20px;width:100%;max-width:440px;max-height:85vh;overflow:auto}
+.modal h3{margin-top:0}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;color:var(--sub);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.toast-wrap{position:fixed;bottom:16px;right:16px;z-index:60;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--text);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:var(--shadow)}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px}
+.bar{flex:1;background:var(--brand2);border-radius:4px 4px 0 0;min-height:2px;position:relative}
+.bar span{position:absolute;top:-18px;left:0;right:0;text-align:center;font-size:10px;color:var(--sub)}
+.bar-labels{display:flex;gap:6px;margin-top:4px}
+.bar-labels div{flex:1;text-align:center;font-size:10px;color:var(--sub)}
+@media(max-width:800px){.sidebar{position:fixed;left:-240px;transition:.2s;z-index:40}.sidebar.open{left:0}
+  header{padding:12px 16px}.search{width:120px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">📊 Painel CRM</div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sidebar-bottom">
+      Meu Perfil · Configurações
+      <button class="theme-btn" onclick="toggleTheme()">🌓 Alternar tema</button>
+    </div>
+  </aside>
+  <div class="main">
+    <header>
+      <h1 id="pageTitle">Dashboard</h1>
+      <input class="search" placeholder="Buscar..." oninput="globalSearch(this.value)">
+    </header>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+<div class="modal-bg" id="modalBg"><div class="modal" id="modalBody"></div></div>
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+// ---------- storage layer (swap LocalStorageService for a Supabase one later) ----------
+const DB = {
+  get(k,d){ try{const v=localStorage.getItem('crm_'+k); return v?JSON.parse(v):d;}catch(e){return d;} },
+  set(k,v){ localStorage.setItem('crm_'+k, JSON.stringify(v)); }
+};
+const uid = () => Math.random().toString(36).slice(2,10);
+const fmtC = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const fmtD = d => d ? new Date(d).toLocaleDateString('pt-BR') : '—';
+const todayISO = () => new Date().toISOString().slice(0,10);
+
+const STATUS_LABEL = {novo:'Novo',contatado:'Contatado',negociacao:'Negociação',proposta_enviada:'Proposta',fechado:'Fechado',perdido:'Perdido',
+  recebido:'Recebido',pendente:'Pendente',atrasado:'Atrasado',cancelado:'Cancelado',
+  planejamento:'Planejamento',em_andamento:'Em andamento',aguardando_cliente:'Aguardando cliente',concluido:'Concluído'};
+
+// Remove os dados de demonstração antigos (apenas os que foram criados automaticamente)
+function removeOldDemo(){
+  if(!DB.get('seeded')) return;
+  const contacts=DB.get('contacts',[]);
+  const demoIds=new Set(contacts.filter(c=>(c.email||'').endsWith('@exemplo.com')).map(c=>c.id));
+  DB.set('contacts',contacts.filter(c=>!demoIds.has(c.id)));
+  DB.set('projects',DB.get('projects',[]).filter(p=>!demoIds.has(p.contactId)));
+  DB.set('earnings',DB.get('earnings',[]).filter(e=>!demoIds.has(e.contactId)));
+  DB.set('activities',DB.get('activities',[]).filter(a=>a.description!=='Dados de demonstração criados'));
+  localStorage.removeItem('crm_seeded');
+}
+
+function logActivity(desc){
+  const a=DB.get('activities',[]); a.unshift({id:uid(),description:desc,createdAt:new Date().toISOString()});
+  DB.set('activities',a.slice(0,50));
+}
+function toast(msg){
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.getElementById('toasts').appendChild(t); setTimeout(()=>t.remove(),2800);
+}
+
+// ---------- routing ----------
+const PAGES=[['dashboard','Dashboard','📊'],['contacts','Contatos','👥'],['pipeline','Pipeline','📈'],
+  ['earnings','Ganhos','💰'],['projects','Projetos','📁'],['settings','Configurações','⚙️']];
+function renderNav(){
+  document.getElementById('nav').innerHTML = PAGES.map(([id,label,icon])=>
+    `<a class="${route===id?'active':''}" onclick="go('${id}')">${icon} ${label}</a>`).join('');
+}
+let route='dashboard';
+function go(r){ route=r; render(); }
+window.addEventListener('hashchange',()=>{});
+
+function render(){
+  renderNav();
+  document.getElementById('pageTitle').textContent = PAGES.find(p=>p[0]===route)[1];
+  const c=document.getElementById('content');
+  if(route==='dashboard') c.innerHTML = pageDashboard();
+  if(route==='contacts') c.innerHTML = pageContacts();
+  if(route==='pipeline') c.innerHTML = pagePipeline();
+  if(route==='earnings') c.innerHTML = pageEarnings();
+  if(route==='projects') c.innerHTML = pageProjects();
+  if(route==='settings') c.innerHTML = pageSettings();
+}
+
+// ---------- dashboard ----------
+function pageDashboard(){
+  const contacts=DB.get('contacts',[]), earnings=DB.get('earnings',[]), projects=DB.get('projects',[]);
+  const now=new Date();
+  const totalEarn=earnings.reduce((s,e)=>s+Number(e.value),0);
+  const monthEarn=earnings.filter(e=>new Date(e.date).getMonth()===now.getMonth()&&new Date(e.date).getFullYear()===now.getFullYear()).reduce((s,e)=>s+Number(e.value),0);
+  const pipelineVal=contacts.filter(c=>['novo','contatado','negociacao','proposta_enviada'].includes(c.status)).reduce((s,c)=>s+Number(c.potentialValue||0),0);
+  const activeClients=contacts.filter(c=>c.status!=='perdido').length;
+  const inProgress=projects.filter(p=>p.status==='em_andamento').length;
+  const closedCount=contacts.filter(c=>c.status==='fechado').length;
+  const conv=contacts.length? Math.round(closedCount/contacts.length*100):0;
+
+  const months=[...Array(6)].map((_,i)=>{const d=new Date(now.getFullYear(),now.getMonth()-5+i,1);return d;});
+  const monthVals=months.map(d=>earnings.filter(e=>{const ed=new Date(e.date);return ed.getMonth()===d.getMonth()&&ed.getFullYear()===d.getFullYear();}).reduce((s,e)=>s+Number(e.value),0));
+  const maxV=Math.max(...monthVals,1);
+
+  const acts=DB.get('activities',[]).slice(0,6);
+
+  return `
+  <div class="grid">
+    ${card('Ganhos totais',fmtC(totalEarn))}
+    ${card('Ganhos deste mês',fmtC(monthEarn))}
+    ${card('Valor em pipeline',fmtC(pipelineVal))}
+    ${card('Clientes ativos',activeClients)}
+    ${card('Projetos em andamento',inProgress)}
+    ${card('Taxa de conversão',conv+'%')}
+  </div>
+  <div class="panel">
+    <h3>Evolução financeira (6 meses)</h3>
+    <div class="bar-chart">${monthVals.map(v=>`<div class="bar" style="height:${Math.max(4,v/maxV*100)}%"><span>${v?fmtC(v).replace('R$',''):''}</span></div>`).join('')}</div>
+    <div class="bar-labels">${months.map(d=>`<div>${d.toLocaleDateString('pt-BR',{month:'short'})}</div>`).join('')}</div>
+  </div>
+  <div class="panel">
+    <h3>Atividades recentes</h3>
+    ${acts.length? acts.map(a=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+      ${a.description} <span style="color:var(--sub);font-size:11px;float:right">${new Date(a.createdAt).toLocaleString('pt-BR')}</span></div>`).join('')
+      : '<div class="empty">Nenhuma atividade ainda</div>'}
+  </div>`;
+}
+function card(label,num,delta){
+  return `<div class="card"><div class="label">${label}</div><div class="num">${num}</div>${delta?`<div class="delta">${delta}</div>`:''}</div>`;
+}
+
+// ---------- contacts ----------
+function pageContacts(){
+  const contacts=DB.get('contacts',[]);
+  return `
+  <div class="panel">
+    <div class="toolbar"><div></div><button class="btn btn-primary" onclick="openContactForm()">+ Novo contato</button></div>
+    ${contacts.length? `<table><thead><tr><th>Nome</th><th>Empresa</th><th>Serviço</th><th>Valor</th><th>Status</th><th>Último contato</th><th></th></tr></thead>
+    <tbody>${contacts.map(c=>`<tr>
+      <td>${c.name}</td><td>${c.company||'—'}</td><td>${c.service||'—'}</td><td>${fmtC(c.potentialValue)}</td>
+      <td><span class="badge b-${c.status}">${STATUS_LABEL[c.status]}</span></td><td>${fmtD(c.lastContact)}</td>
+      <td>
+        ${c.whatsapp?`<a class="icon-btn" href="https://wa.me/55${(c.whatsapp||'').replace(/\\D/g,'')}" target="_blank">💬</a>`:''}
+        <button class="icon-btn" onclick="openContactForm('${c.id}')">✏️</button>
+        <button class="icon-btn btn-danger" onclick="deleteItem('contacts','${c.id}')">🗑️</button>
+      </td></tr>`).join('')}</tbody></table>`
+    : '<div class="empty">Nenhum contato ainda. Clique em "Novo contato" para começar.</div>'}
+  </div>`;
+}
+function openContactForm(id){
+  const c=id? DB.get('contacts',[]).find(x=>x.id===id) : {};
+  showModal(`
+  <h3>${id?'Editar':'Novo'} contato</h3>
+  <div class="field"><label>Nome *</label><input id="f_name" value="${c.name||''}"></div>
+  <div class="field"><label>Empresa</label><input id="f_company" value="${c.company||''}"></div>
+  <div class="field"><label>WhatsApp</label><input id="f_whatsapp" value="${c.whatsapp||''}"></div>
+  <div class="field"><label>E-mail</label><input id="f_email" value="${c.email||''}"></div>
+  <div class="field"><label>Serviço</label><input id="f_service" value="${c.service||''}"></div>
+  <div class="field"><label>Valor potencial (R$)</label><input id="f_value" type="number" value="${c.potentialValue||''}"></div>
+  <div class="field"><label>Status</label><select id="f_status">${['novo','contatado','negociacao','proposta_enviada','fechado','perdido'].map(s=>`<option value="${s}" ${c.status===s?'selected':''}>${STATUS_LABEL[s]}</option>`).join('')}</select></div>
+  <div class="field"><label>Origem</label><select id="f_source">${['instagram','whatsapp','indicacao','workana','site','facebook','google','outro'].map(s=>`<option value="${s}" ${c.source===s?'selected':''}>${s}</option>`).join('')}</select></div>
+  <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancelar</button>
+  <button class="btn btn-primary" onclick="saveContact('${id||''}')">Salvar</button></div>`);
+}
+function saveContact(id){
+  const name=document.getElementById('f_name').value.trim();
+  if(!name){toast('Nome é obrigatório');return;}
+  const data={name,company:document.getElementById('f_company').value,whatsapp:document.getElementById('f_whatsapp').value,
+    email:document.getElementById('f_email').value,service:document.getElementById('f_service').value,
+    potentialValue:Number(document.getElementById('f_value').value)||0,status:document.getElementById('f_status').value,
+    source:document.getElementById('f_source').value,lastContact:todayISO()};
+  const contacts=DB.get('contacts',[]);
+  if(id){ Object.assign(contacts.find(c=>c.id===id),data); logActivity('Contato atualizado: '+name); }
+  else{ data.id=uid(); data.createdAt=todayISO(); contacts.push(data); logActivity('Novo contato adicionado: '+name); }
+  DB.set('contacts',contacts); closeModal(); toast('Contato salvo com sucesso.'); render();
+}
+function deleteItem(table,id){
+  if(!confirm('Excluir este item? Essa ação não pode ser desfeita.')) return;
+  DB.set(table, DB.get(table,[]).filter(x=>x.id!==id));
+  logActivity('Item removido de '+table); toast('Excluído.'); render();
+}
+
+// ---------- pipeline ----------
+const PIPE_COLS=['novo','contatado','negociacao','proposta_enviada','fechado','perdido'];
+function pagePipeline(){
+  const contacts=DB.get('contacts',[]);
+  const total=contacts.length;
+  const val=contacts.reduce((s,c)=>s+Number(c.potentialValue||0),0);
+  return `
+  <div class="grid">${card('Oportunidades',total)}${card('Valor total',fmtC(val))}${card('Valor médio',fmtC(total?val/total:0))}</div>
+  <div class="kanban">${PIPE_COLS.map(col=>`
+    <div class="kcol" ondragover="event.preventDefault()" ondrop="dropCard(event,'${col}')">
+      <h4>${STATUS_LABEL[col]} (${contacts.filter(c=>c.status===col).length})</h4>
+      ${contacts.filter(c=>c.status===col).map(c=>`
+        <div class="kcard" draggable="true" ondragstart="event.dataTransfer.setData('id','${c.id}')">
+          <b>${c.name}</b><small>${c.company||''}</small>
+          <div class="kv">${fmtC(c.potentialValue)}</div>
+        </div>`).join('')}
+    </div>`).join('')}</div>`;
+}
+function dropCard(ev,col){
+  const id=ev.dataTransfer.getData('id');
+  const contacts=DB.get('contacts',[]); const c=contacts.find(x=>x.id===id);
+  if(c){ c.status=col; DB.set('contacts',contacts); logActivity(`${c.name} movido para ${STATUS_LABEL[col]}`); render(); }
+}
+
+// ---------- earnings ----------
+function pageEarnings(){
+  const earnings=DB.get('earnings',[]);
+  const recv=earnings.filter(e=>e.paymentStatus==='recebido').reduce((s,e)=>s+Number(e.value),0);
+  const pend=earnings.filter(e=>e.paymentStatus==='pendente').reduce((s,e)=>s+Number(e.value),0);
+  const atras=earnings.filter(e=>e.paymentStatus==='atrasado').reduce((s,e)=>s+Number(e.value),0);
+  return `
+  <div class="grid">${card('Total recebido',fmtC(recv))}${card('Pendente',fmtC(pend))}${card('Atrasado',fmtC(atras))}</div>
+  <div class="panel"><div class="toolbar"><div></div><button class="btn btn-primary" onclick="openEarningForm()">+ Novo ganho</button></div>
+  ${earnings.length? `<table><thead><tr><th>Valor</th><th>Data</th><th>Forma</th><th>Status</th><th>Categoria</th><th></th></tr></thead>
+  <tbody>${earnings.map(e=>`<tr><td>${fmtC(e.value)}</td><td>${fmtD(e.date)}</td><td>${e.paymentMethod||'—'}</td>
+    <td><span class="badge b-${e.paymentStatus}">${STATUS_LABEL[e.paymentStatus]}</span></td><td>${e.category||'—'}</td>
+    <td><button class="icon-btn btn-danger" onclick="deleteItem('earnings','${e.id}')">🗑️</button></td></tr>`).join('')}</tbody></table>`
+  : '<div class="empty">Nenhum ganho registrado ainda.</div>'}</div>`;
+}
+function openEarningForm(){
+  showModal(`<h3>Novo ganho</h3>
+  <div class="field"><label>Valor (R$) *</label><input id="e_value" type="number"></div>
+  <div class="field"><label>Data</label><input id="e_date" type="date" value="${todayISO()}"></div>
+  <div class="field"><label>Forma de pagamento</label><select id="e_method">${['pix','dinheiro','cartao','transferencia','outro'].map(m=>`<option>${m}</option>`).join('')}</select></div>
+  <div class="field"><label>Status</label><select id="e_status">${['recebido','pendente','atrasado','cancelado'].map(s=>`<option value="${s}">${STATUS_LABEL[s]}</option>`).join('')}</select></div>
+  <div class="field"><label>Categoria</label><input id="e_cat" value="Projeto"></div>
+  <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEarning()">Salvar</button></div>`);
+}
+function saveEarning(){
+  const value=Number(document.getElementById('e_value').value);
+  if(!value){toast('Informe um valor válido');return;}
+  const e={id:uid(),value,date:document.getElementById('e_date').value,paymentMethod:document.getElementById('e_method').value,
+    paymentStatus:document.getElementById('e_status').value,category:document.getElementById('e_cat').value};
+  const earnings=DB.get('earnings',[]); earnings.push(e); DB.set('earnings',earnings);
+  logActivity('Novo ganho registrado: '+fmtC(value)); closeModal(); toast('Ganho salvo.'); render();
+}
+
+// ---------- projects ----------
+function pageProjects(){
+  const projects=DB.get('projects',[]), contacts=DB.get('contacts',[]);
+  return `<div class="panel"><div class="toolbar"><div></div><button class="btn btn-primary" onclick="openProjectForm()">+ Novo projeto</button></div>
+  ${projects.length? projects.map(p=>{
+    const cn=contacts.find(c=>c.id===p.contactId)?.name||'—';
+    return `<div style="padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <b>${p.name}</b><span class="badge b-${p.status}">${STATUS_LABEL[p.status]}</span>
+      </div>
+      <div style="font-size:12px;color:var(--sub);margin:4px 0">${cn} · ${fmtC(p.value)} · prioridade ${p.priority}</div>
+      <div style="background:var(--bg);border-radius:6px;height:6px;overflow:hidden"><div style="background:var(--brand);height:100%;width:${p.progress||0}%"></div></div>
+      <button class="icon-btn btn-danger" onclick="deleteItem('projects','${p.id}')">🗑️ remover</button>
+    </div>`;
+  }).join('') : '<div class="empty">Nenhum projeto ainda.</div>'}</div>`;
+}
+function openProjectForm(){
+  const contacts=DB.get('contacts',[]);
+  showModal(`<h3>Novo projeto</h3>
+  <div class="field"><label>Nome *</label><input id="p_name"></div>
+  <div class="field"><label>Cliente</label><select id="p_contact"><option value="">—</option>${contacts.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+  <div class="field"><label>Valor (R$)</label><input id="p_value" type="number"></div>
+  <div class="field"><label>Status</label><select id="p_status">${['planejamento','em_andamento','aguardando_cliente','concluido','cancelado'].map(s=>`<option value="${s}">${STATUS_LABEL[s]||s}</option>`).join('')}</select></div>
+  <div class="field"><label>Prioridade</label><select id="p_priority">${['baixa','media','alta','urgente'].map(s=>`<option>${s}</option>`).join('')}</select></div>
+  <div class="field"><label>Progresso (%)</label><input id="p_progress" type="number" value="0" min="0" max="100"></div>
+  <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProject()">Salvar</button></div>`);
+}
+function saveProject(){
+  const name=document.getElementById('p_name').value.trim();
+  if(!name){toast('Nome é obrigatório');return;}
+  const p={id:uid(),name,contactId:document.getElementById('p_contact').value,value:Number(document.getElementById('p_value').value)||0,
+    status:document.getElementById('p_status').value,priority:document.getElementById('p_priority').value,
+    progress:Number(document.getElementById('p_progress').value)||0,startDate:todayISO()};
+  const projects=DB.get('projects',[]); projects.push(p); DB.set('projects',projects);
+  logActivity('Novo projeto: '+name); closeModal(); toast('Projeto salvo.'); render();
+}
+
+// ---------- settings ----------
+function pageSettings(){
+  return `
+  <div class="panel"><h3>Aparência</h3>
+    <button class="btn" onclick="toggleTheme()">Alternar tema claro/escuro</button>
+  </div>
+  <div class="panel"><h3>Backup</h3>
+    <button class="btn" onclick="exportBackup()">⬇ Exportar backup (JSON)</button>
+    <input type="file" id="importFile" accept="application/json" style="margin-left:10px" onchange="importBackup(event)">
+  </div>
+  <div class="panel"><h3>Dados</h3>
+    <button class="btn btn-danger" onclick="clearDemo()">Limpar todos os dados</button>
+  </div>`;
+}
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', cur==='dark'?'light':'dark');
+}
+function exportBackup(){
+  const data={contacts:DB.get('contacts',[]),projects:DB.get('projects',[]),earnings:DB.get('earnings',[]),activities:DB.get('activities',[])};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='backup-crm.json'; a.click();
+  toast('Backup exportado.');
+}
+function importBackup(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    if(!confirm('Isso vai substituir os dados atuais. Continuar?')) return;
+    try{ const data=JSON.parse(reader.result);
+      ['contacts','projects','earnings','activities'].forEach(k=>{ if(data[k]) DB.set(k,data[k]); });
+      toast('Backup restaurado com sucesso.'); render();
+    }catch(e){ toast('Arquivo inválido.'); }
+  };
+  reader.readAsText(file);
+}
+function clearDemo(){
+  if(!confirm('Isso apaga todos os dados salvos. Continuar?')) return;
+  ['contacts','projects','earnings','activities','seeded'].forEach(k=>localStorage.removeItem('crm_'+k));
+  toast('Dados apagados.'); location.reload();
+}
+
+// ---------- modal / search ----------
+function showModal(html){ document.getElementById('modalBody').innerHTML=html; document.getElementById('modalBg').classList.add('show'); }
+function closeModal(){ document.getElementById('modalBg').classList.remove('show'); }
+function globalSearch(q){
+  if(!q){ render(); return; }
+  q=q.toLowerCase();
+  const contacts=DB.get('contacts',[]).filter(c=>c.name.toLowerCase().includes(q));
+  document.getElementById('pageTitle').textContent='Resultados para "'+q+'"';
+  document.getElementById('content').innerHTML = `<div class="panel"><h3>Contatos</h3>${contacts.length?contacts.map(c=>`<div style="padding:6px 0">${c.name} — ${c.company||''}</div>`).join(''):'<div class="empty">Nada encontrado</div>'}</div>`;
+}
+
+removeOldDemo();
+render();
+</script>
+</body>
+</html>
